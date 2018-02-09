@@ -1,9 +1,10 @@
 # torch.nn package
-# Build a feed-forward Neural Network (LeNet)
+# Build a feed-forward Neural Network - LeNet
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F 
+import torch.optim as optim
 
 class Net(nn.Module):
 
@@ -23,7 +24,7 @@ class Net(nn.Module):
 		# Max pooling 2x2 window
 		x = F.max_pool2d(F.relu(self.conv1(x)), (2,2))
 		# If the size is a square you can only specify a single number
-		x = F.max_pool2(F.relu(self.conv2(x)), 2)
+		x = F.max_pool2d(F.relu(self.conv2(x)), 2)
 		x = x.view(-1, self.num_flat_features(x))
 		x = F.relu(self.fc1(x))
 		x = F.relu(self.fc2(x))
@@ -40,4 +41,39 @@ class Net(nn.Module):
 net = Net()
 print(net)
 
+params = list(net.parameters())
+print (len(params))
+print(params[0].size) # conv1 weight
 
+input = Variable(torch.randn(1,1,32,32))
+out = net(input)
+print (out)
+
+net.zero_grad()
+out.backward(torch.randn(1,10))
+
+## Loss Function
+output = net(input)
+target = Variable(torch.arange(1,11))
+criterion = nn.MSELoss()
+
+loss = criterion(output, target)
+print(loss)
+
+print (loss.grad_fn)
+print(loss.grad_fn.next_functions[0][0])
+print(loss.grad_fn.next_functions[0][0].next_functions[0][0])
+
+## Backprop
+net.zero_grad()
+print('conv1.bias grad before backward')
+print(net.conv1.bias.grad)
+
+loss.backward()
+
+print('conv1.bias grad after backward')
+print(net.conv1.bias.grad)
+
+learning_rate = 0.01
+for f in net.parameters():
+	f.data.sub_(f.grad.data * learning_rate)
