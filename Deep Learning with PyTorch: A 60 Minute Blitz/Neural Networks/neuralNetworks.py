@@ -74,6 +74,16 @@ loss.backward()
 print('conv1.bias grad after backward')
 print(net.conv1.bias.grad)
 
-learning_rate = 0.01
-for f in net.parameters():
-	f.data.sub_(f.grad.data * learning_rate)
+#learning_rate = 0.01
+#for f in net.parameters():
+#	f.data.sub_(f.grad.data * learning_rate)
+
+# Create your optimizer
+optimizer = optim.SGD(net.parameters(), lr=0.01)
+
+# in train loop:
+optimizer.zero_grad()
+output = net(input)
+loss = criterion(output, target)
+loss.backward()
+optimizer.step() # update
