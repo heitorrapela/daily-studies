@@ -12,3 +12,4 @@ pip install opencv
 pip install mahotas
 pip install scikit-learn
 pip install -U scikit-image
+pip install imutils
